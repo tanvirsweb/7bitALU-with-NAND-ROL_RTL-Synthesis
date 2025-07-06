@@ -1,0 +1,18 @@
+{
+  "DESIGN_NAME": "CT4_TOP",
+  "VERILOG_FILES": [
+    "dir::ALU_OP1_NAND.v",
+    "dir::ALU_OP2_ROL.v",
+    "dir::ALU.v",
+    "dir::CONTROLLER.v",
+    "dir::CT4_TOP.v"
+  ],
+  "CLOCK_PORT": "clk",
+  "CLOCK_PERIOD": 10.0,
+  "FP_CORE_UTIL": 60,
+  "FP_SIZING": "absolute",
+  "DIE_AREA": "0 0 100 100",
+  "PL_TARGET_DENSITY": 0.65,
+  "PDK": "sky130A",
+  "STD_CELL_LIBRARY": "sky130_fd_sc_hd"
+}

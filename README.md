@@ -1,92 +1,109 @@
-# RTL Systhesis using OpenLane
-by `Tanvir Anjom Siddique`
+# 🔧 RTL Synthesis using OpenLane
 
-# Install Docker in Ubuntu >= 22.07 version
+**by [Tanvir Anjom Siddique](https://tanvirsweb.github.io/)**
 
-`setup_docker.sh`
+---
+
+## 📺 Project Demo Video
+
+[![Watch the Demo](https://img.youtube.com/vi/ylSGS9OKyuc/hqdefault.jpg)](https://youtu.be/ylSGS9OKyuc)
+
+---
+
+## 📌 Project Overview
+
+This project demonstrates the full flow of RTL synthesis using the OpenLane toolchain on a custom Verilog-based ALU and controller design. It includes:
+
+1. ✅ HDL Source Code
+2. ✅ RTL Timing Diagrams
+3. ✅ RTL Synthesis using Skywater 130nm PDK via OpenLane
+4. ✅ Synthesis Summary Reports
+5. ✅ Synthesized RTL Design Diagrams
+6. ✅ Standard Cell Usage Report
+7. ✅ Floorplan Visualization
+8. ✅ Power Analysis
+9. ✅ GDSII Layout View
+10. ✅ Heatmap using OpenROAD GUI
+
+---
+
+## 🐳 Docker Installation (Ubuntu ≥ 22.07)
+
+Create a Docker setup script:
 
 ```bash
-# Add Docker's official GPG key:
+gedit setup_docker.sh
+```
+
+Paste the following:
+
+```bash
+# Add Docker’s official GPG key
 sudo apt-get update
 sudo apt-get install ca-certificates curl
 sudo install -m 0755 -d /etc/apt/keyrings
 sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
 sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-# Add the repository to Apt sources:
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+# Add Docker’s official repository
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+$(. /etc/os-release && echo \"${UBUNTU_CODENAME:-$VERSION_CODENAME}\") stable" | \
+sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# Install Docker Engine
 sudo apt-get update
-
-
-
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# Test installation
 sudo docker run hello-world
 ```
 
+Then run:
+
 ```bash
-gedit setup_docker.sh
-# copy paste above code
-
-chmod 777 setup_docker.sh
-
-# Install Docker in ubuntu
+chmod +x setup_docker.sh
 ./setup_docker.sh
 ```
 
-# Install IIC-OSIC-TOOLS
+---
+
+## 🛠 Install IIC-OSIC-TOOLS
+
 ```bash
-cd ~
-cd Documents
+cd ~/Documents
 git clone https://github.com/iic-jku/IIC-OSIC-TOOLS.git
-cd IIC-OSIC-TOOLS/
+cd IIC-OSIC-TOOLS
 sudo ./start_x.sh
-# s
 ```
 
-# Open IIC-OSIC-TOOLS Terminal
+To launch later:
+
 ```bash
 cd ~/Documents/IIC-OSIC-TOOLS
 sudo ./start_x.sh
 ```
 
-# Make Project (in IIC-OSIC-TOOLS Terminal)
-```bash
-cd ~
-mkdir OpenLane
-cd OpenLane
-mkdir designs
-cd designs
-mkdir assignemt
-cd assignment
-```
+---
+
+## 📁 Project Setup
+
+Create project folder and files:
 
 ```bash
+mkdir -p ~/OpenLane/designs/assignment
 cd ~/OpenLane/designs/assignment
-
-gedit ALU_OP1_NAND.v ALU.v CONTROLLER_tb.v instructions.sh ALU_OP2_ROL.v CONTROLLER.v ALU_tb.v config.json  CT4_TOP.v TOP_tb.v
-# then in editor write / copy paste the code
-
-la
 ```
+
+Then:
 
 ```bash
-# open all .v and .sh files in gedit
-gedit $(ls *.v *.sh)
+gedit ALU_OP1_NAND.v ALU.v CONTROLLER_tb.v ALU_OP2_ROL.v CONTROLLER.v ALU_tb.v config.json CT4_TOP.v TOP_tb.v instructions.sh
 ```
 
-# RTL Systhesis using Openlane & See Outputs
-```bash
+---
 
-openlane config.json
+## ⚙️ Configuration File: `config.json`
 
-chmod 777 *.sh
-./instructions.sh
-
-```
-# config.json
 ```json
 {
   "DESIGN_NAME": "CT4_TOP",
@@ -106,120 +123,120 @@ chmod 777 *.sh
   "PDK": "sky130A",
   "STD_CELL_LIBRARY": "sky130_fd_sc_hd"
 }
-
 ```
-# instructions.sh
+
+---
+
+## 📜 Shell Script: `instructions.sh`
 
 ```bash
 #!/bin/bash
 
-# ===================================
-# Environment Setup & Permissions
-# ===================================
-
-# Make all shell scripts executable
+# Permission and environment setup
 chmod 777 *.sh
-
-# Unset and set PDK variables
 unset PDK
 unset SCL
-
 export PDK=sky130A
 export SCL=sky130_fd_sc_hd
 export PDK_ROOT=/foss/pdks
 
-echo "PDK set to: $PDK"
-echo "SCL set to: $SCL"
+# Open Verilog files
+gedit *.v
 
-# ===================================
-# Open All Verilog Source Files
-# ===================================
-gedit *.v $(ls *.v) 
-
-# ===================================
-# Simulation: ALU Module
-# ===================================
+# ALU simulation
 iverilog -o alu_test.vvp ALU_tb.v ALU.v ALU_OP1_NAND.v ALU_OP2_ROL.v
 vvp alu_test.vvp
-gtkwave alu_test.vcd 
+gtkwave alu_test.vcd
 
-# ===================================
-# Simulation: Controller Module
-# ===================================
+# Controller simulation
 iverilog -o controller_test.vvp CONTROLLER_tb.v CONTROLLER.v
 vvp controller_test.vvp
-gtkwave controller_test.vcd 
+gtkwave controller_test.vcd
 
-# ===================================
-# Simulation: Top Module
-# ===================================
+# Top-level simulation
 iverilog -o top_test.vvp TOP_tb.v CT4_TOP.v CONTROLLER.v ALU.v ALU_OP1_NAND.v ALU_OP2_ROL.v
 vvp top_test.vvp
-gtkwave top_test.vcd 
+gtkwave top_test.vcd
 
+# Clean up simulation files
+rm *.vvp *.vcd
 
-# clean .vvp and .vcd files
-sudo rm *.vvp *.vcd
-# ===================================
-# Start OpenLane Flow
-# ===================================
-# openlane config.json
+# Run OpenLane
+openlane config.json
 
-# ===================================
-# Define Paths
-# ===================================
+# Locate latest run
 DESIGN_DIR=$(pwd)
 RUN_DIR=$(ls -td "$DESIGN_DIR/runs/RUN_"*/ | head -1)
+echo "Latest run directory: $RUN_DIR"
 
-echo "Using latest run directory: $RUN_DIR"
-
-# ===================================
-# View Project Folder Contents
-# ===================================
-cd "$DESIGN_DIR"
-la
-
-# ===================================
-# RTL Synthesis Summary
-# ===================================
+# View reports and diagrams
 cd "$RUN_DIR/06-yosys-synthesis/reports"
-gedit stat.rpt 
+gedit stat.rpt
 
-# ===================================
-# RTL Synthesised Design Figures
-# ===================================
 cd "$RUN_DIR/06-yosys-synthesis"
-xdot hierarchy.dot 
-xdot primitive_techmap.dot 
+xdot hierarchy.dot
+xdot primitive_techmap.dot
 
-# ===================================
-# Standard Cell Usage
-# ===================================
-cd "$RUN_DIR/06-yosys-synthesis/reports"
-gedit stat.rpt 
-
-# ===================================
-# RTL Floorplan
-# ===================================
 cd "$RUN_DIR/13-openroad-floorplan"
-gedit openroad-floorplan.log 
+gedit openroad-floorplan.log
 
-# ===================================
-# RTL Power Report
-# ===================================
 cd "$RUN_DIR/54-openroad-stapostpnr/nom_tt_025C_1v80"
-gedit power.rpt 
+gedit power.rpt
 
-# ===================================
-# GDS Layout
-# ===================================
 cd "$RUN_DIR/final/gds"
 klayout CT4_TOP.gds
 
-# ===================================
-# Heatmap (ODB View)
-# ===================================
 cd "$RUN_DIR/final/odb"
-openroad -gui 
+openroad -gui
+```
+
+---
+
+## 🚀 Running the Project
+
+```bash
+chmod +x instructions.sh
+./instructions.sh
+```
+
+---
+
+## 📂 Project Directory Structure
 
 ```
+OpenLane/
+└── designs/
+    └── assignment/
+        ├── ALU.v
+        ├── ALU_tb.v
+        ├── CONTROLLER.v
+        ├── CONTROLLER_tb.v
+        ├── CT4_TOP.v
+        ├── TOP_tb.v
+        ├── ALU_OP1_NAND.v
+        ├── ALU_OP2_ROL.v
+        ├── config.json
+        └── instructions.sh
+```
+
+---
+
+## 🧰 Tools & Technologies
+
+- **OpenLane** – Full RTL to GDSII digital flow
+- **Skywater 130nm (sky130A) PDK**
+- **GTKWave** – Verilog waveform visualization
+- **iverilog** – Verilog simulation tool
+- **KLayout** – GDS layout viewer
+- **xdot** – Graph-based schematic viewer
+- **OpenROAD GUI** – Layout and heatmap visualization
+
+---
+
+## 👨‍💻 Author
+
+**Tanvir Anjom Siddique**
+CSE, RUET | RTL & Digital Design Enthusiast
+🔗 [Portfolio](https://tanvirsweb.github.io/) | 🔗 [LinkedIn](https://bd.linkedin.com/in/tanvir-anjom-siddique)
+
+---
